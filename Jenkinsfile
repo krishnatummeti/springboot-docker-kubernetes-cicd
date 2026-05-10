@@ -1,39 +1,47 @@
-pipeline {
+pipeline{
     agent any
+    environment{
+        DOCKER_IMAGE = "tummetikrishna/spring-petclinic"
+    }
     tools{
-        maven 'maven_3_5_0'
+        maven 'maven'
     }
     stages{
         stage('Build Maven'){
             steps{
-                checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/Java-Techie-jt/devops-automation']]])
+                checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/krishnatummeti/springboot-docker-kubernetes-cicd.git']])
                 sh 'mvn clean install'
+                echo  "Build Maven install Completed"
             }
         }
-        stage('Build docker image'){
+        stage('Build a Docker Image'){
             steps{
                 script{
-                    sh 'docker build -t javatechie/devops-integration .'
+                    sh 'docker build -t ${DOCKER_IMAGE} .'
+                    echo "docker image build completed ${DOCKER_IMAGE}"
                 }
             }
         }
-        stage('Push image to Hub'){
+        stage('Push to docker hub'){
             steps{
-                script{
-                   withCredentials([string(credentialsId: 'dockerhub-pwd', variable: 'dockerhubpwd')]) {
-                   sh 'docker login -u javatechie -p ${dockerhubpwd}'
-
+                withCredentials([usernamePassword(credentialsId: 'docker-hub', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
+                sh 'docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}' 
 }
-                   sh 'docker push javatechie/devops-integration'
-                }
+                sh 'docker push ${DOCKER_IMAGE}'
             }
         }
-        stage('Deploy to k8s'){
+        stage('Deploy to Kubernetes'){
             steps{
                 script{
-                    kubernetesDeploy (configs: 'deploymentservice.yaml',kubeconfigId: 'k8sconfigpwd')
+                    withKubeConfig(caCertificate: '', clusterName: '', contextName: '', credentialsId: 'k8s-config', namespace: '', restrictKubeConfigAccess: false, serverUrl: 'https://192.168.71.129:6443') {
+                    sh 'kubectl apply -f deploymentservice.yaml'
+                    sh 'kubectl get all'
+}
+                    
                 }
+
             }
         }
     }
+
 }
