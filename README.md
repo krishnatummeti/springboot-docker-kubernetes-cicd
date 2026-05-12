@@ -33,9 +33,30 @@ To replicate this pipeline, you will need:
 The `Jenkinsfile` in this repository executes the following stages:
 
 * `Build Maven`: Checks out the main branch and runs `mvn clean install`.
-* `Build a Docker Image`: Builds the Docker image tagging it as `tummetikrishna/spring-petclinic`.
+* `Build a Docker Image`: Builds the Docker image, tagging it as `tummetikrishna/spring-petclinic`.
 * `Push to Docker Hub`: Authenticates with Docker Hub and pushes the latest image.
 * `Deploy to Kubernetes`: Connects to the Kubernetes cluster API and applies the deployment and service configurations.
+
+## Description
+<div>
+    <p>This job automates the CI/CD lifecycle for the Spring Petclinic application.</p>
+
+    <h3>Key Stages:</h3>
+    <ol>
+        <li>Maven Build &amp; Test</li>
+        <li>Docker Image Creation (tummetikrishna/spring-petclinic)</li>
+        <li>Push to Docker Hub</li>
+        <li>Kubernetes Deployment via kubectl</li>
+    </ol>
+    
+    <hr>
+
+    <p>
+        <strong>Owner:</strong> Krishna Tummeti<br>
+        <strong>Environment:</strong> Production/K8s Cluster
+    </p>
+</div>
+
 
 ## 📂 Project Structure
 ```text
